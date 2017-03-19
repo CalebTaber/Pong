@@ -34,6 +34,17 @@ public class Pong extends Application {
             if (py < ly) left.move(-1);
             else if (py > ly && py > ly + left.getRect().getHeight()) left.move(1);
         }
+
+        // Uncomment if you want the computer to play against itself
+        /*
+        if (puck.getCircle().getCenterX() >= width / 2 && puck.getXVelocity() > 0) {
+            int py = (int) puck.getCircle().getCenterY();
+            int ry = (int) right.getRect().getY();
+
+            if (py < ry) right.move(-1);
+            else if (py > ry && py > ry + right.getRect().getHeight()) right.move(1);
+        }
+        */
     }
 
     private void update() {
