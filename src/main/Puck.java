@@ -1,9 +1,13 @@
 package main;
 
 import javafx.geometry.Bounds;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.util.Duration;
 
+import java.io.File;
 import java.util.Random;
 
 public class Puck {
@@ -12,6 +16,8 @@ public class Puck {
     private int x, y, xInit, yInit;
     private int xVelocity, yVelocity;
     private Bounds LPaddle, RPaddle;
+
+    private MediaPlayer mp;
 
     public Puck(int x, int y) {
         this.x = x;
@@ -22,6 +28,15 @@ public class Puck {
         yVelocity = -1;
         circle = new Circle(x, y, 6);
         circle.setFill(Color.WHITE);
+
+        try {
+            File file = new File(getClass().getResource("/sound/blip.wav").toURI());
+            System.out.println(file.getAbsolutePath());
+            Media blip = new Media(file.toURI().toString());
+            mp = new MediaPlayer(blip);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void reset() {
@@ -38,6 +53,11 @@ public class Puck {
         LPaddle = left;
         RPaddle = right;
         move();
+    }
+
+    private void blip() {
+        mp.play();
+        mp.seek(Duration.ZERO);
     }
 
     private void move() {
@@ -61,9 +81,18 @@ public class Puck {
 
             if(yVelocity < 0) yVelocity--;
             else yVelocity++;
+
+            blip();
         }
 
-        if(y - circle.getRadius() <= 0 || y + circle.getRadius() >= 560) yVelocity *= -1;
+        if(y - circle.getRadius() <= 0 || y + circle.getRadius() >= 560) {
+            yVelocity *= -1;
+            blip();
+        }
+    }
+
+    public int getXVelocity() {
+        return xVelocity;
     }
 
     public Circle getCircle() {

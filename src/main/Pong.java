@@ -2,10 +2,8 @@ package main;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -22,13 +20,26 @@ public class Pong extends Application {
 
     private Puck puck;
     private Paddle left, right;
+
     private int LScore, RScore;
     private Text lScoreCount, rScoreCount;
 
+    private int pDir;
+
+    private void computerMove() {
+        if (puck.getCircle().getCenterX() <= width / 2 && puck.getXVelocity() < 0) {
+            int py = (int) puck.getCircle().getCenterY();
+            int ly = (int) left.getRect().getY();
+
+            if (py < ly) left.move(-1);
+            else if (py > ly && py > ly + left.getRect().getHeight()) left.move(1);
+        }
+    }
+
     private void update() {
         puck.update(left.getRect().getBoundsInParent(), right.getRect().getBoundsInParent());
-        left.update();
-        right.update();
+        computerMove();
+        if(pDir != 0) right.move(pDir);
 
         if(puck.getCircle().getCenterX() - puck.getCircle().getRadius() < 0) {
             RScore++;
@@ -95,24 +106,14 @@ public class Pong extends Application {
         }.start();
 
         // Get keyboard input
-        main.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            public void handle(KeyEvent event) {
-                if(event.getCode().equals(KeyCode.UP)) right.setDirection(-1);
-                if(event.getCode().equals(KeyCode.DOWN)) right.setDirection(1);
-
-                if(event.getCode().equals(KeyCode.W)) left.setDirection(-1);
-                if(event.getCode().equals(KeyCode.S)) left.setDirection(1);
-            }
+        main.setOnKeyPressed(e -> {
+                if(e.getCode().equals(KeyCode.UP)) pDir = -1;
+                if(e.getCode().equals(KeyCode.DOWN)) pDir = 1;
         });
 
-        main.setOnKeyReleased(new EventHandler<KeyEvent>() {
-            public void handle(KeyEvent event) {
-                if(event.getCode().equals(KeyCode.UP)) right.setDirection(0);
-                if(event.getCode().equals(KeyCode.DOWN)) right.setDirection(0);
-
-                if(event.getCode().equals(KeyCode.W)) left.setDirection(0);
-                if(event.getCode().equals(KeyCode.S)) left.setDirection(0);
-            }
+        main.setOnKeyReleased(e -> {
+                if(e.getCode().equals(KeyCode.UP)) pDir = 0;
+                if(e.getCode().equals(KeyCode.DOWN)) pDir = 0;
         });
 
         window.show();
